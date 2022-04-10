@@ -15,6 +15,9 @@ dev.setup.mac:
 run:
 	go run cmd/services/strava-api/main.go
 
+tidy:
+	go mod tidy
+
 # ==============================================================================
 # Building containers
 
