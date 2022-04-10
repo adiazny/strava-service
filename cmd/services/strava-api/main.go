@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/adiazny/strava-service/cmd/services/strava-api/handlers"
 	"github.com/ardanlabs/conf/v3"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
@@ -19,8 +20,13 @@ import (
 )
 
 /*
-	- Construct a logger
-	- Handle config
+
+	- Add Docker support
+	- Add Kind support
+	===================
+	- Add HTTP Router
+	- Add HTTP Handlers
+	-
 */
 
 // build is the git version of this program. It is set using build flags in the makefile.
@@ -120,10 +126,18 @@ func run(log *zap.SugaredLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	// Construct the mux for the API calls.
+	// Note: I am free to use any router (mux) that implements type http.Handler
+	// As of 4/10/2022, I will use Bill's suggestion: https://github.com/dimfeld/httptreemux
+	apiMux := handlers.APIMux(handlers.APIMuxConfig{
+		Shutdown: shutdown,
+		Log:      log,
+	})
+
 	// Construct a server to service the requests against the mux.
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      nil,
+		Handler:      apiMux,
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
