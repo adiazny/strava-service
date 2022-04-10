@@ -5,7 +5,9 @@ import (
 	"expvar"
 	"fmt"
 	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
@@ -71,6 +73,8 @@ func run(log *zap.SugaredLogger) error {
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
+			ClientNoPrint   string        `conf:"default:0.0.0.0:3000,noprint"` //example to not print config
+			ClientMask      string        `conf:"default:0.0.0.0:3000,mask"`    // example to mask config
 		}
 	}{
 		Version: conf.Version{
@@ -95,6 +99,7 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("starting service", "version", build)
 	defer log.Infow("shutdown complete")
 
+	// prints out the configuration.
 	out, err := conf.String(&cfg)
 	if err != nil {
 		return fmt.Errorf("generating config for output: %w", err)
@@ -102,6 +107,12 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("startup", "config", out)
 
 	expvar.NewString("build").Set(build)
+
+	// =========================================================================
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+	<-shutdown
 
 	return nil
 }
