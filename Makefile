@@ -18,6 +18,9 @@ run:
 tidy:
 	go mod tidy
 
+down:
+	kill -INT $(shell ps | grep exe/main | grep -v grep | sed -n 1,1p | cut -c1-5)
+
 # ==============================================================================
 # Building containers
 
