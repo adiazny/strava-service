@@ -2,10 +2,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
 
+	"github.com/adiazny/strava-service/cmd/services/strava-api/handlers/v1/testgrp"
 	"github.com/dimfeld/httptreemux/v5"
 	"go.uber.org/zap"
 )
@@ -20,16 +20,11 @@ type APIMuxConfig struct {
 func APIMux(cfg APIMuxConfig) *httptreemux.ContextMux {
 	mux := httptreemux.NewContextMux()
 
-	h := func(w http.ResponseWriter, r *http.Request) {
-		status := struct {
-			Status string
-		}{
-			Status: "ok",
-		}
-		json.NewEncoder(w).Encode(status)
+	tgh := testgrp.Handlers{
+		Log: cfg.Log,
 	}
 
-	mux.Handle(http.MethodGet, "/test", h)
+	mux.Handle(http.MethodGet, "/v1/test", tgh.Test)
 
 	return mux
 }

@@ -20,13 +20,14 @@ import (
 )
 
 /*
-
+	// Infrastructure & Debugging Support
 	- Add Docker support
 	- Add Kind support
+	- Add a Readiness, Liveness Handlers
 	===================
+	// Application Support
 	- Add HTTP Router
 	- Add HTTP Handlers
-	-
 */
 
 // build is the git version of this program. It is set using build flags in the makefile.
