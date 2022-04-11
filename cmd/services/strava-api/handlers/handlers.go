@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/adiazny/strava-service/business/web/mid"
 	"github.com/adiazny/strava-service/cmd/services/strava-api/handlers/v1/testgrp"
 	"github.com/adiazny/strava-service/foundation/web"
+
 	"go.uber.org/zap"
 )
 
@@ -20,7 +22,10 @@ type APIMuxConfig struct {
 func APIMux(cfg APIMuxConfig) *web.App {
 
 	// Construct the web.App which holds all routes.
-	app := web.NewApp(cfg.Shutdown)
+	app := web.NewApp(
+		cfg.Shutdown,
+		mid.Logger(cfg.Log),
+	)
 
 	// Load the routes for the different versions of the API
 	v1(app, cfg)
